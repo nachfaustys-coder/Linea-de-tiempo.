@@ -1,0 +1,852 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Monarquía compuesta, 1469–1641</title>
+<!-- Tipografías: se cargan si hay conexión; sin conexión se usan las de respaldo del sistema. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ground:#17140f; --ground-deep:#0e0c09; --panel:#241f17;
+  --gold:#c8a45c; --gold-bright:#e2c483; --gold-dim:#8a7340; --frame:#5a4a2c; --frame-2:#3a3020;
+  --text:#e9dfc8; --text-hi:#efe4cc; --muted:#b3a68a; --soft:#cfc3a6; --soft-2:#d8ccb0;
+  --parch:#ece1c7; --ink:#2a2118; --ink-2:#3a2e20; --ink-label:#6b5a3c; --rule:#c3a978; --rule-2:#b89a5e;
+  --lacre:#6e2a1f; --dyn:#c8a45c; --ter:#c86a52; --pol:#84b0a6; --pol-ink:#3e6b62;
+  --display:'Cormorant Garamond','Garamond','Palatino Linotype','Book Antiqua',Georgia,serif;
+  --body:'EB Garamond','Garamond','Palatino Linotype','Book Antiqua',Georgia,serif;
+  --dur:450ms; --ease:cubic-bezier(.22,.61,.36,1);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--ground-deep);color:var(--text);overflow:hidden}
+body{font-family:var(--body);-webkit-font-smoothing:antialiased;touch-action:manipulation}
+button{font:inherit;color:inherit}
+a{color:var(--gold)} a:hover{color:var(--gold-bright)}
+:focus-visible{outline:2px solid var(--gold-bright);outline-offset:4px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.lbl{font-family:var(--body);font-size:15px;letter-spacing:.22em;text-transform:uppercase}
+
+/* ---------- Escenario 16:9 escalado ---------- */
+#stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;background:var(--ground);
+  transform-origin:0 0;overflow:hidden}
+.frame{position:absolute;pointer-events:none;border:1px solid var(--frame);inset:24px;z-index:30}
+.frame.inner{inset:30px;border-color:var(--frame-2)}
+
+/* ---------- Pantallas ---------- */
+.screen{position:absolute;inset:0;opacity:0;visibility:hidden;transform:translateY(14px);
+  transition:opacity 500ms var(--ease),transform 500ms var(--ease),visibility 0s linear 500ms}
+.screen.active{opacity:1;visibility:visible;transform:none;transition:opacity 500ms var(--ease),transform 500ms var(--ease),visibility 0s}
+
+/* Progreso global, discreto */
+#progress{position:absolute;left:0;right:0;bottom:3px;height:18px;display:flex;justify-content:center;gap:22px;z-index:31;
+  font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:#9a8a68;pointer-events:none}
+#progress span.on{color:var(--gold-bright)}
+#fsbtn{position:absolute;right:34px;top:0;height:24px;z-index:32;background:none;border:0;color:#9a8a68;font-size:13px;
+  letter-spacing:.18em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;gap:6px;padding:0 4px}
+#fsbtn:hover{color:var(--gold-bright)}
+
+/* Cortinilla de capítulo */
+#chapter{position:absolute;inset:0;z-index:40;background:var(--ground);display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:14px;opacity:0;visibility:hidden;transition:opacity 260ms ease,visibility 0s linear 260ms}
+#chapter.show{opacity:1;visibility:visible;transition:opacity 260ms ease,visibility 0s}
+#chapter .num{font-family:var(--display);font-style:italic;font-size:40px;color:var(--gold)}
+#chapter .name{font-family:var(--display);font-weight:600;font-size:76px;color:var(--text-hi)}
+#chapter .rule{width:0;height:1px;background:var(--gold);transition:width 600ms var(--ease)}
+#chapter.show .rule{width:420px}
+
+/* Botones comunes */
+.btn{min-height:52px;padding:0 26px;background:transparent;border:1px solid var(--gold-dim);color:var(--text);
+  font-family:var(--body);font-size:18px;letter-spacing:.18em;text-transform:uppercase;display:inline-flex;align-items:center;gap:12px;cursor:pointer;transition:background 200ms,border-color 200ms,color 200ms}
+.btn:hover{border-color:var(--gold);color:var(--gold-bright)}
+.btn.primary{background:var(--gold);border-color:var(--gold);color:var(--ground);font-weight:600}
+.btn.primary:hover{background:var(--gold-bright);color:var(--ground)}
+.btn svg{flex:none}
+.linkbtn{background:none;border:0;padding:12px 4px;font-size:18px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);cursor:pointer;min-height:44px}
+.linkbtn:hover{color:var(--gold-bright)}
+
+/* ---------- Inicio ---------- */
+#s-inicio .wrap{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;text-align:center;padding:0 240px}
+.seal{width:150px;height:150px}
+#s-inicio h1{margin:0;font-family:var(--display);font-weight:600;font-size:92px;line-height:1.02;color:var(--text-hi)}
+#s-inicio .dates{font-family:var(--display);font-style:italic;font-size:48px;color:var(--gold)}
+#s-inicio p{margin:0;max-width:1060px;font-size:25px;line-height:1.5;color:var(--soft)}
+#s-inicio .hint{font-size:17px;color:var(--muted);font-style:italic}
+
+/* ---------- Clave de lectura ---------- */
+#s-clave .wrap{position:absolute;inset:0;padding:70px 110px 60px;display:flex;flex-direction:column;gap:30px}
+#s-clave h2{margin:0;font-family:var(--display);font-weight:600;font-size:58px;color:var(--text-hi)}
+#s-clave .lead{margin:0;font-size:27px;line-height:1.5;color:var(--soft);max-width:1600px}
+.pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:40px}
+.card{border:1px solid var(--frame);padding:30px 34px;display:flex;flex-direction:column;gap:14px}
+.card.parch{background:var(--parch);color:var(--ink);border-color:var(--rule-2)}
+.card h3{margin:0;font-family:var(--display);font-style:italic;font-weight:600;font-size:40px}
+.card p{margin:0;font-size:24px;line-height:1.5}
+.card .ex{font-size:19px;letter-spacing:.06em}
+.howto{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:40px;border-top:1px solid var(--frame);padding-top:26px}
+.howto h4{margin:0 0 12px;font-size:16px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold)}
+.howto p{margin:0;font-size:21px;line-height:1.45;color:var(--soft)}
+.types{display:flex;flex-direction:column;gap:10px;font-size:21px;color:var(--soft)}
+.types span{display:flex;align-items:center;gap:12px}
+.foot{margin-top:auto;display:flex;justify-content:space-between;align-items:center}
+
+/* Formas de tipo */
+.sh{display:inline-block;flex:none}
+.sh.dyn{width:18px;height:18px;border-radius:50%;background:var(--dyn)}
+.sh.ter{width:15px;height:15px;margin:0 2px;background:var(--ter);transform:rotate(45deg)}
+.sh.pol{width:16px;height:16px;margin:0 1px;background:var(--pol)}
+
+/* ---------- Cronología ---------- */
+#s-crono .wrap{position:absolute;inset:0;padding:50px 72px 40px;display:flex;flex-direction:column}
+#s-crono header{display:flex;justify-content:space-between;align-items:flex-end;gap:40px}
+#s-crono h1{margin:0;font-family:var(--display);font-weight:600;font-size:50px;line-height:1.02;color:var(--text-hi);white-space:nowrap}
+#s-crono .dates{font-family:var(--display);font-style:italic;font-size:30px;color:var(--gold)}
+.legend{display:flex;border:1px solid var(--frame);flex:none}
+.legend .types{padding:14px 20px;gap:9px}
+.legend .types span{font-size:15px;letter-spacing:.22em;text-transform:uppercase;color:var(--text)}
+.legend .scale{border-left:1px solid var(--frame);padding:14px 20px;width:300px;display:flex;flex-direction:column;gap:6px}
+.legend .scale b{font-weight:600;color:var(--gold-bright);font-size:15px;letter-spacing:.22em;text-transform:uppercase;display:flex;align-items:center;gap:10px}
+.legend .scale span{font-size:16px;line-height:1.35;color:var(--soft)}
+
+#axis{position:relative;height:240px;margin-top:22px}
+.ax-line{position:absolute;top:112px;height:2px;background:var(--gold-dim)}
+.ax-line.b{top:109px;height:8px;background:none;border-top:2px solid var(--gold-dim);border-bottom:2px solid var(--gold-dim)}
+.ink{position:absolute;top:111px;height:4px;background:var(--gold-bright);transition:width var(--dur) var(--ease);box-shadow:0 0 8px rgba(226,196,131,.35)}
+.ink.b{top:108px;height:10px;background:linear-gradient(var(--gold-bright) 0 3px,transparent 3px 7px,var(--gold-bright) 7px)}
+.tick{position:absolute;top:104px;width:1px;height:7px;background:var(--gold-dim)}
+.tick.b{top:100px;height:8px}
+.break{position:absolute;top:94px;width:100px;height:38px}
+.bracket{position:absolute;top:212px;height:10px;border:1px solid var(--ink-label);border-top:none}
+.blabel{position:absolute;top:222px;text-align:center;font-family:var(--display);font-style:italic;font-size:17px;color:var(--muted);white-space:nowrap}
+.blabel.gap{color:var(--gold-bright)}
+
+.mk{position:absolute;top:89px;width:48px;height:48px;margin-left:-24px;padding:0;border:0;background:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;z-index:3;border-radius:2px}
+.mk .sh{transition:transform 200ms var(--ease)}
+.mk.dyn .sh{width:24px;height:24px}
+.mk.ter .sh{width:20px;height:20px;margin:0}
+.mk.pol .sh{width:22px;height:22px;margin:0}
+.mk:hover .sh,.mk.peek .sh{transform:scale(1.18)}
+.mk.ter:hover .sh,.mk.ter.peek .sh{transform:rotate(45deg) scale(1.18)}
+.mk:focus-visible{outline-offset:0}
+.yl{position:absolute;display:flex;flex-direction:column;gap:3px;cursor:pointer;width:200px;margin-left:-100px;text-align:center;z-index:2}
+.yl.up{top:0}
+.yl.down{top:140px}
+.yl.left{margin-left:-12px;text-align:left}
+.yl.right{margin-left:-140px;width:200px;text-align:right}
+.yl .y{font-family:var(--display);font-weight:600;font-size:28px;color:var(--text-hi);transition:color 200ms}
+.yl .t{font-size:16px;line-height:1.25;color:var(--muted);transition:color 200ms}
+.yl.on .y{color:var(--gold-bright);font-weight:700}
+.yl.on .t,.yl.peek .t{color:var(--text-hi)}
+#ring{position:absolute;top:93px;width:40px;height:40px;margin-left:-20px;border:2px solid var(--gold-bright);box-shadow:0 0 0 6px rgba(200,164,92,.18);
+  pointer-events:none;transition:left var(--dur) var(--ease),border-radius var(--dur) var(--ease),transform var(--dur) var(--ease);z-index:1}
+#ring.dyn{border-radius:50%}
+#ring.ter{transform:rotate(45deg) scale(.9)}
+
+/* Vista previa flotante */
+#tip{position:absolute;top:256px;width:380px;z-index:20;background:var(--panel);border:1px solid var(--gold);box-shadow:0 14px 30px rgba(0,0,0,.55);
+  padding:16px 20px;display:flex;flex-direction:column;gap:8px;opacity:0;transform:translateY(-6px);pointer-events:none;
+  transition:opacity 200ms ease,transform 200ms ease}
+#tip.show{opacity:1;transform:none}
+#tip.touch.show{pointer-events:auto}
+#tip .arrow{position:absolute;top:-8px;width:14px;height:14px;margin-left:-7px;background:var(--panel);border-left:1px solid var(--gold);border-top:1px solid var(--gold);transform:rotate(45deg)}
+#tip .hd{display:flex;align-items:center;gap:10px}
+#tip .yr{font-family:var(--display);font-weight:700;font-size:24px;color:var(--gold-bright)}
+#tip .cat{font-size:13px;letter-spacing:.22em;text-transform:uppercase}
+#tip .ti{font-family:var(--display);font-weight:600;font-size:23px;line-height:1.12;color:var(--text-hi)}
+#tip p{margin:0;font-size:17px;line-height:1.4;color:var(--soft-2)}
+#tip .ft{display:flex;align-items:center;gap:8px;border-top:1px solid var(--frame);padding-top:8px;font-size:15px;color:var(--gold);letter-spacing:.04em}
+#tip .open{display:none}
+#tip.touch .hint{display:none}
+#tip.touch .open{display:inline-flex;min-height:44px;padding:0 16px;background:var(--gold);color:var(--ground);border:0;font-size:15px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;cursor:pointer;align-items:center}
+
+/* Ficha */
+#ficha{flex:1 1 auto;min-height:0;margin-top:18px;background:var(--parch);color:var(--ink);position:relative;padding:32px 52px;display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));column-gap:60px;box-shadow:0 18px 40px rgba(0,0,0,.45);transition:opacity 220ms ease}
+#ficha.dim{opacity:.5}
+#ficha::before{content:"";position:absolute;inset:10px;border:1px solid var(--rule-2);pointer-events:none}
+#ficha .col{display:flex;flex-direction:column;gap:12px;min-height:0;transition:opacity 220ms ease,transform 220ms ease}
+#ficha.swap .col{opacity:0;transform:translateY(12px)}
+#ficha .col.r{border-left:1px solid var(--rule);padding-left:44px}
+.fhead{display:flex;align-items:center;gap:20px}
+.wax{flex:none;width:80px;height:80px;border-radius:50%;background:var(--lacre);color:#f3e6c8;display:flex;align-items:center;justify-content:center;
+  box-shadow:inset 0 0 0 4px #8a3a2c,inset 0 0 0 6px #5a2018;font-family:var(--display);font-weight:700;font-size:23px}
+.ftype{display:flex;align-items:center;gap:10px;font-size:15px;letter-spacing:.22em;text-transform:uppercase;font-weight:600}
+.ftype .sec{font-weight:400;letter-spacing:.06em;text-transform:none;font-style:italic;font-size:16px;color:var(--ink-label)}
+.ftype .sh{width:14px;height:14px}
+.ftype .sh.ter{width:12px;height:12px}
+#ficha h2{margin:0;font-family:var(--display);font-weight:700;font-size:38px;line-height:1.05}
+#ficha .k{font-size:14px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-label)}
+#ficha p{margin:0;font-size:20px;line-height:1.45}
+#ficha h3{margin:0;font-family:var(--display);font-style:italic;font-weight:600;font-size:30px;color:var(--lacre)}
+#ficha .hr{height:1px;background:var(--rule);margin:2px 0}
+.nota{margin-top:auto;display:flex;align-items:flex-start;gap:16px;padding:12px 18px;border:1.5px dashed var(--lacre)}
+.nota b{font-size:15px;letter-spacing:.22em;text-transform:uppercase;color:var(--lacre);white-space:nowrap;padding-top:3px}
+.nota span{font-size:17px;line-height:1.4}
+#ficha .src{margin-top:auto;font-size:15px;line-height:1.35;color:#5a4a32}
+#ficha .src b{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-label);font-weight:400}
+
+nav.tl{display:flex;align-items:center;justify-content:space-between;gap:32px;margin-top:20px}
+.dots{display:flex;align-items:center;gap:14px}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--gold-dim);transition:width 300ms var(--ease),background 300ms}
+.dot.after{background:none;border:1px solid var(--gold-dim)}
+.dot.on{width:28px;border-radius:5px;background:var(--gold-bright);border:0}
+.count{margin-left:14px;font-family:var(--display);font-style:italic;font-size:22px;color:var(--muted)}
+
+/* ---------- Pregunta ---------- */
+#s-pregunta .wrap{position:absolute;inset:0;padding:70px 200px;display:flex;flex-direction:column;justify-content:center;gap:30px}
+#s-pregunta header{display:flex;flex-direction:column;gap:12px;align-items:center;text-align:center}
+#s-pregunta h1{margin:0;font-family:var(--display);font-weight:600;font-size:60px;line-height:1.05;color:var(--text-hi)}
+#s-pregunta .sub{margin:0;font-size:20px;color:var(--muted);font-style:italic}
+.opts{display:flex;flex-direction:column;gap:16px}
+.opt{display:flex;align-items:center;gap:24px;min-height:92px;padding:18px 28px;text-align:left;background:transparent;color:var(--soft);
+  border:1px solid var(--frame);font-family:var(--body);font-size:23px;line-height:1.35;cursor:pointer;transition:background 250ms,border-color 250ms,color 250ms}
+.opt:hover:not([disabled]){border-color:var(--gold);color:var(--text-hi)}
+.opt .mark{flex:none;width:46px;height:46px;border-radius:50%;border:1px solid var(--gold-dim);display:flex;align-items:center;justify-content:center}
+.opt strong{font-family:var(--display);font-size:28px;margin-right:10px;color:var(--text)}
+.opt[disabled]{cursor:default}
+.opt.right{background:var(--parch);color:var(--ink);border:2px solid var(--gold)}
+.opt.right strong{color:var(--ink)}
+.opt.right .mark{background:var(--pol-ink);border:0;color:#f3e6c8}
+.opt.wrong{border:2px solid var(--ter);color:var(--text)}
+.opt.wrong .mark{background:var(--ter);border:0;color:var(--ground)}
+.opt.faded{opacity:.55}
+#fb{display:flex;gap:24px;align-items:flex-start;padding:22px 28px;border:1.5px dashed var(--gold);min-height:130px;opacity:0;transform:translateY(8px);transition:opacity 300ms,transform 300ms}
+#fb.show{opacity:1;transform:none}
+#fb b{font-size:15px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-bright);white-space:nowrap;padding-top:4px;min-width:150px;flex:none}
+#fb.no{border-color:var(--ter)} #fb.no b{color:var(--ter)}
+#fb p{margin:0;font-size:21px;line-height:1.45;color:var(--text)}
+#s-pregunta footer{display:flex;justify-content:space-between;align-items:center;gap:24px}
+
+/* ---------- Fuentes ---------- */
+#s-fuentes .wrap{position:absolute;inset:0;padding:52px 72px 40px;display:flex;flex-direction:column;gap:24px}
+#s-fuentes header{display:flex;justify-content:space-between;align-items:flex-end;gap:40px}
+#s-fuentes h1{margin:0;font-family:var(--display);font-weight:600;font-size:52px;color:var(--text-hi)}
+.verif{padding:12px 18px;border:1px solid var(--frame);max-width:620px;font-size:16px;line-height:1.4}
+.cols3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:48px;flex:1 1 auto;min-height:0}
+.cols3 section{display:flex;flex-direction:column;gap:14px;min-height:0}
+.h{margin:0;font-family:var(--display);font-style:italic;font-weight:600;font-size:32px;color:var(--gold);border-bottom:1px solid var(--frame);padding-bottom:8px}
+.ref{margin:0;font-size:19px;line-height:1.4;color:var(--soft-2);padding-left:40px;text-indent:-40px}
+.ref .n{display:inline-block;width:40px;text-indent:0;color:var(--gold-bright);font-weight:600}
+.ref a{font-size:17px;color:var(--muted);word-break:break-all;text-decoration-color:var(--frame)}
+.ref a:hover{color:var(--gold-bright)}
+.map{display:grid;grid-template-columns:90px minmax(0,1fr);column-gap:12px;font-size:19px;line-height:1.3;padding:8px 0;border-top:1px solid var(--frame-2)}
+.map span:first-child{color:var(--text-hi);font-weight:600}
+.map span:last-child{color:var(--soft-2)}
+#s-fuentes footer{display:flex;justify-content:space-between;align-items:center;gap:24px;border-top:1px solid var(--frame);padding-top:12px}
+
+/* Rotar en móvil vertical */
+#rotate{display:none;position:fixed;inset:0;z-index:100;background:var(--ground-deep);color:var(--text);align-items:center;justify-content:center;text-align:center;padding:32px;font-size:20px;line-height:1.5}
+@media (orientation:portrait) and (max-width:820px){#rotate{display:flex}}
+
+@media (prefers-reduced-motion:reduce){
+  :root{--dur:0ms}
+  .screen,.screen.active{transform:none!important;transition:opacity 200ms!important}
+  #ficha.swap .col{transform:none} #tip{transform:none!important}
+  #chapter{display:none!important}
+}
+</style>
+</head>
+<body>
+<div id="rotate" role="note">Gira el dispositivo para ver la exposición en horizontal (16:9).</div>
+
+<div id="stage">
+  <div class="frame" aria-hidden="true"></div>
+  <div class="frame inner" aria-hidden="true"></div>
+  <button id="fsbtn" type="button" aria-label="Pantalla completa (tecla F)">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+    <span>Pantalla completa</span>
+  </button>
+  <div id="progress" aria-hidden="true"></div>
+  <div id="live" class="sr" aria-live="polite"></div>
+
+  <!-- I · INICIO -->
+  <section class="screen" id="s-inicio" aria-label="Inicio">
+    <div class="wrap">
+      <svg class="seal" viewBox="0 0 150 150" aria-hidden="true">
+        <circle cx="75" cy="75" r="70" fill="#6e2a1f"/>
+        <circle cx="75" cy="75" r="62" fill="none" stroke="#8a3a2c" stroke-width="3"/>
+        <circle cx="75" cy="75" r="54" fill="none" stroke="#c8a45c" stroke-width="1" stroke-dasharray="2 5"/>
+        <path d="M45 92h60M50 92l6-30 19 16 19-16 6 30" fill="none" stroke="#e2c483" stroke-width="2.4" stroke-linejoin="round"/>
+        <circle cx="56" cy="58" r="3.5" fill="#e2c483"/><circle cx="75" cy="72" r="3.5" fill="#e2c483"/><circle cx="94" cy="58" r="3.5" fill="#e2c483"/>
+      </svg>
+      <div class="lbl" style="color:var(--muted)">Exposición · Crónica política de la Monarquía Hispánica</div>
+      <h1>El ascenso y las tensiones de una monarquía compuesta</h1>
+      <div class="dates">1469 – 1641</div>
+      <p>Cómo se formó, se expandió y se tensó una monarquía que reunía, bajo una misma dinastía, reinos con leyes e instituciones propias.</p>
+      <button class="btn primary" type="button" data-go="1">Comenzar
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+      <div class="hint">o pulsa la flecha → del teclado o del mando</div>
+    </div>
+  </section>
+
+  <!-- II · CLAVE DE LECTURA -->
+  <section class="screen" id="s-clave" aria-label="Clave de lectura">
+    <div class="wrap">
+      <div class="lbl" style="color:var(--muted)">II · Clave de lectura</div>
+      <h2>Muchos reinos, un solo rey</h2>
+      <p class="lead">Una monarquía compuesta reúne bajo un mismo soberano varios reinos y territorios que conservan sus propias leyes, Cortes e instituciones. El historiador J. H. Elliott difundió el concepto en 1992 para describir la Europa de los siglos XVI y XVII [1].</p>
+      <div class="pair">
+        <div class="card parch">
+          <h3 style="color:var(--lacre)">Unión dinástica</h3>
+          <p>Los reinos comparten rey y dinastía. Cada uno conserva su derecho, sus Cortes, su fiscalidad y sus cargos.</p>
+          <span class="ex" style="color:var(--ink-label)">En la cronología: 1469 · 1516 · 1580</span>
+        </div>
+        <div class="card">
+          <h3 style="color:var(--gold)">Integración política</h3>
+          <p style="color:var(--soft)">Los reinos compartirían leyes e instituciones comunes. Entre 1469 y 1641 fue un proyecto, no una realidad.</p>
+          <span class="ex" style="color:var(--muted)">En la cronología: 1624 · 1626</span>
+        </div>
+      </div>
+      <div class="howto">
+        <div><h4>Tres tipos de acontecimiento</h4>
+          <div class="types"><span><i class="sh dyn"></i>Dinástico · sello redondo, oro</span><span><i class="sh ter"></i>Territorial · rombo, almagre</span><span><i class="sh pol"></i>Político · cuadrado, verdete</span></div></div>
+        <div><h4>Escala quebrada</h4><p>El eje no es proporcional: el tramo 1621–1641 aparece ampliado unas ocho veces respecto al de 1469–1580, y los 41 años intermedios, sin hitos, se resumen en un corte.</p></div>
+        <div><h4>Cómo explorar</h4><p>Acerca el cursor o toca una fecha para ver un resumen. Haz clic, o toca de nuevo, para abrir la ficha completa. Usa ← → para avanzar y retroceder.</p></div>
+      </div>
+      <div class="foot">
+        <button class="btn" type="button" data-go="0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Inicio</button>
+        <button class="btn primary" type="button" data-go="2">Ir a la cronología<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- III · CRONOLOGÍA -->
+  <section class="screen" id="s-crono" aria-label="Cronología">
+    <div class="wrap">
+      <header>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div class="lbl" style="color:var(--muted)">Sala I · Crónica política de la Monarquía Hispánica</div>
+          <h1>El ascenso y las tensiones de una monarquía compuesta</h1>
+          <div class="dates">1469 – 1641</div>
+        </div>
+        <div class="legend">
+          <div class="types" role="list" aria-label="Leyenda de tipos">
+            <span role="listitem"><i class="sh dyn"></i>Dinástico</span>
+            <span role="listitem"><i class="sh ter"></i>Territorial</span>
+            <span role="listitem"><i class="sh pol"></i>Político</span>
+          </div>
+          <div class="scale">
+            <b><svg width="34" height="16" viewBox="0 0 34 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M0 8h10M24 8h10M12 14l4-12M18 14l4-12"/></svg>Escala quebrada</b>
+            <span>El eje no es proporcional: el tramo 1621–1641 está ampliado unas 8 veces.</span>
+          </div>
+        </div>
+      </header>
+
+      <div id="axis" role="group" aria-label="Línea de tiempo. Usa Tab para recorrer las fechas y Intro para abrir la ficha."></div>
+
+      <article id="ficha" aria-labelledby="f-title">
+        <div class="col l">
+          <div class="fhead">
+            <div class="wax" id="f-wax"></div>
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <div class="ftype" id="f-type"></div>
+              <h2 id="f-title"></h2>
+            </div>
+          </div>
+          <div class="k">Explicación histórica</div>
+          <p id="f-exp"></p>
+          <div class="nota" id="f-nota"><b>Nota de rigor</b><span></span></div>
+        </div>
+        <div class="col r">
+          <div class="k">Relevancia para el Estado compuesto</div>
+          <p id="f-rel"></p>
+          <div class="hr"></div>
+          <h3>¿Qué cambió?</h3>
+          <p id="f-cam"></p>
+          <p class="src"><b>Fuentes de la ficha · </b><span id="f-src"></span></p>
+        </div>
+      </article>
+
+      <nav class="tl" aria-label="Navegación cronológica">
+        <button class="btn" type="button" id="prev"></button>
+        <div class="dots" id="dots" aria-hidden="true"></div>
+        <div style="display:flex;align-items:center;gap:24px">
+          <button class="linkbtn" type="button" data-go="4">Fuentes</button>
+          <button class="btn primary" type="button" id="next"></button>
+        </div>
+      </nav>
+    </div>
+  </section>
+
+  <!-- IV · PREGUNTA FINAL -->
+  <section class="screen" id="s-pregunta" aria-label="Pregunta final">
+    <div class="wrap">
+      <header>
+        <div class="lbl" style="color:var(--muted)">IV · Antes de salir de la sala · Pregunta final</div>
+        <h1 id="q-title">¿Qué caracteriza a una monarquía compuesta?</h1>
+        <p class="sub" id="q-sub">Elige una respuesta.</p>
+      </header>
+      <div class="opts" role="group" aria-labelledby="q-title" id="opts"></div>
+      <div id="fb" role="status" aria-live="polite"><b></b><p></p></div>
+      <footer>
+        <button class="btn" type="button" data-go="2"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Volver a la cronología</button>
+        <button class="linkbtn" type="button" id="retry" hidden>Intentar de nuevo</button>
+        <button class="btn primary" type="button" data-go="4">Fuentes<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+      </footer>
+    </div>
+  </section>
+
+  <!-- V · FUENTES -->
+  <section class="screen" id="s-fuentes" aria-label="Fuentes consultadas">
+    <div class="wrap">
+      <header>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div class="lbl" style="color:var(--muted)">V · Sección final</div>
+          <h1>Fuentes consultadas</h1>
+        </div>
+        <div class="verif">Ediciones, ISBN y enlaces comprobados el 30 de octubre de 2026. Los números entre corchetes remiten a estas referencias desde cada ficha.</div>
+      </header>
+      <div class="cols3">
+        <section>
+          <h2 class="h">Académicas</h2>
+          <p class="ref"><span class="n">1</span>Elliott, J. H. «A Europe of Composite Monarchies». <em>Past &amp; Present</em>, 137 (1992), pp. 48–71. <a href="https://doi.org/10.1093/past/137.1.48" target="_blank" rel="noopener">doi.org/10.1093/past/137.1.48</a></p>
+          <p class="ref"><span class="n">2</span>Elliott, J. H.; De la Peña, J. F.; Negredo, F. (eds.). <em>Memoriales y cartas del Conde Duque de Olivares</em>, I: <em>Política interior, 1621–1645</em>. Madrid: CEEH / Marcial Pons, 2013 (1.ª ed. Alfaguara, 1978–1981). ISBN 978-84-15963-12-7.</p>
+          <p class="ref"><span class="n">3</span>Elliott, J. H. <em>El conde-duque de Olivares. El político en una época de decadencia</em>. Barcelona: Crítica, 1990. ISBN 84-7423-439-5.</p>
+          <p class="ref"><span class="n">4</span>Elliott, J. H. <em>La rebelión de los catalanes. Un estudio sobre la decadencia de España (1598–1640)</em>. Trad. R. Sánchez Mantero. Madrid: Siglo XXI, 1977. ISBN 84-323-0269-4.</p>
+          <p class="ref"><span class="n">5</span>Bouza Álvarez, F. <em>Felipe II y el Portugal «dos povos». Imágenes de esperanza y revuelta</em>. Valladolid: Universidad de Valladolid, 2010. ISBN 978-84-8448-597-1.</p>
+          <p class="ref"><span class="n">6</span>Valladares, R. <em>La rebelión de Portugal. Guerra, conflicto y poderes en la Monarquía Hispánica (1640–1680)</em>. Valladolid: Junta de Castilla y León, 1998. ISBN 84-7846-799-8.</p>
+        </section>
+        <section>
+          <h2 class="h">Institucionales y de referencia</h2>
+          <p class="ref" style="padding-left:0;text-indent:0;color:var(--muted);font-style:italic">Real Academia de la Historia, <em>Historia Hispánica</em> (antes Diccionario Biográfico electrónico):</p>
+          <p class="ref"><span class="n">7</span>«Isabel I». <a href="https://historia-hispanica.rah.es/biografias/24039-isabel-i" target="_blank" rel="noopener">historia-hispanica.rah.es/biografias/24039-isabel-i</a></p>
+          <p class="ref"><span class="n">8</span>«Carlos I de España y V de Alemania». <a href="https://historia-hispanica.rah.es/biografias/9664-carlos-i-de-espana-y-v-de-alemania" target="_blank" rel="noopener">…/biografias/9664-carlos-i-de-espana-y-v-de-alemania</a></p>
+          <p class="ref"><span class="n">9</span>«Felipe II». <a href="https://historia-hispanica.rah.es/biografias/15713-felipe-ii" target="_blank" rel="noopener">…/biografias/15713-felipe-ii</a></p>
+          <p class="ref"><span class="n">10</span>«Felipe IV». <a href="https://historia-hispanica.rah.es/biografias/15735-felipe-iv" target="_blank" rel="noopener">…/biografias/15735-felipe-iv</a></p>
+          <p class="ref"><span class="n">11</span>«Gaspar de Guzmán y Pimentel» (conde-duque de Olivares). <a href="https://historia-hispanica.rah.es/biografias/21694-gaspar-de-guzman-y-pimentel-rivera-y-velasco-de-tovar" target="_blank" rel="noopener">…/biografias/21694-gaspar-de-guzman-y-pimentel…</a></p>
+          <p class="ref"><span class="n">12</span>«Juan IV de Portugal». <a href="https://historia-hispanica.rah.es/biografias/25035-juan-iv-de-portugal" target="_blank" rel="noopener">…/biografias/25035-juan-iv-de-portugal</a></p>
+          <p class="ref"><span class="n">13</span>«Pau Claris i Casademunt». <a href="https://historia-hispanica.rah.es/biografias/11243-pau-claris-i-casademunt" target="_blank" rel="noopener">…/biografias/11243-pau-claris-i-casademunt</a></p>
+          <p class="ref"><span class="n">14</span><em>Gran Enciclopèdia Catalana</em>, «el Corpus de Sang». <a href="https://www.enciclopedia.cat/EC-GEC-0020016" target="_blank" rel="noopener">enciclopedia.cat/EC-GEC-0020016</a></p>
+          <p class="ref"><span class="n">15</span><em>Gran Enciclopèdia Catalana</em>, «República Catalana». <a href="https://www.enciclopedia.cat/gran-enciclopedia-catalana/republica-catalana-0" target="_blank" rel="noopener">enciclopedia.cat/…/republica-catalana-0</a></p>
+        </section>
+        <section>
+          <h2 class="h">Museística</h2>
+          <p class="ref"><span class="n">16</span>Museo Nacional del Prado. Velázquez, <em>Gaspar de Guzmán, conde-duque de Olivares, a caballo</em>, h. 1636, P001181. <a href="https://www.museodelprado.es/coleccion/obra-de-arte/gaspar-de-guzman-conde-duque-de-olivares-a-caballo/178f3732-d95c-491c-b4e2-e755f7a07796" target="_blank" rel="noopener">museodelprado.es/coleccion/obra-de-arte/…</a></p>
+          <h2 class="h" style="margin-top:12px">Referencias por acontecimiento</h2>
+          <div>
+            <div class="map"><span>Marco</span><span>[1] Concepto de monarquía compuesta</span></div>
+            <div class="map"><span>1469</span><span>[7]</span></div>
+            <div class="map"><span>1516</span><span>[8]</span></div>
+            <div class="map"><span>1580–81</span><span>[9] [5]</span></div>
+            <div class="map"><span>1621</span><span>[10] [11]</span></div>
+            <div class="map"><span>1624</span><span>[2] edición del Gran Memorial · [11]</span></div>
+            <div class="map"><span>1626</span><span>[3] [11] · retrato: [16]</span></div>
+            <div class="map"><span>1640</span><span>[4] [14] Cataluña · [12] [6] Portugal</span></div>
+            <div class="map" style="border-bottom:1px solid var(--frame-2)"><span>1641</span><span>[15] [13]</span></div>
+          </div>
+        </section>
+      </div>
+      <footer>
+        <button class="btn" type="button" data-go="3"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Pregunta final</button>
+        <span style="font-family:var(--display);font-style:italic;font-size:21px;color:var(--muted)">El ascenso y las tensiones de una monarquía compuesta · 1469–1641</span>
+        <button class="btn primary" type="button" data-go="0">Volver al inicio</button>
+      </footer>
+    </div>
+  </section>
+
+  <div id="chapter" aria-hidden="true"><div class="num"></div><div class="name"></div><div class="rule"></div></div>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* ================= CONTENIDO ================= */
+var TYPES = {
+  dyn:{label:'Dinástico', long:'Acontecimiento dinástico', ink:'#7a5c1e', light:'var(--dyn)'},
+  ter:{label:'Territorial', long:'Acontecimiento territorial', ink:'#8e3a28', light:'var(--ter)'},
+  pol:{label:'Político', long:'Acontecimiento político', ink:'#3e6b62', light:'var(--pol)'}
+};
+
+var EVENTS = [
+ {year:1469, type:'dyn', place:'up', align:'left',
+  axis:'Matrimonio de Isabel y Fernando',
+  title:'Matrimonio de Isabel de Castilla y Fernando de Aragón',
+  short:'Valladolid, 19 de octubre de 1469. Se unen dos herederos, no dos Estados.',
+  exp:'El 19 de octubre de 1469 se casaron en Valladolid Isabel, heredera de Castilla, y Fernando, heredero de Aragón. Isabel reinó en Castilla desde 1474 y Fernando en la Corona de Aragón desde 1479: desde entonces ambas coronas compartieron a sus reyes.',
+  rel:'Es el punto de partida de la monarquía compuesta: una misma pareja reinante sobre coronas que siguieron siendo distintas.',
+  cam:'Castilla y Aragón no se fusionaron. Cada corona conservó sus leyes, sus Cortes, su moneda y sus aduanas; lo que compartían era la dinastía.',
+  nota:'Unión dinástica no equivale a integración política: no nació un Estado unificado.',
+  src:'RAH, Historia Hispánica, «Isabel I» [7].'},
+ {year:1516, type:'dyn', place:'down',
+  axis:'Reinado de Carlos I',
+  title:'Inicio del reinado de Carlos I',
+  short:'Carlos reúne en su persona las herencias castellana, aragonesa y borgoñona.',
+  exp:'Tras la muerte de Fernando el Católico en 1516, Carlos de Gante, nieto de los Reyes Católicos y del emperador Maximiliano I, comenzó a reinar en Castilla y en Aragón junto a su madre, Juana I. En 1519 fue elegido emperador.',
+  rel:'La monarquía se hace europea: al conjunto hispánico se suman los dominios borgoñones y, desde 1519, la dignidad imperial.',
+  cam:'Aumentaron los territorios bajo un mismo soberano, pero no se unificaron: cada uno conservó sus leyes e instituciones, y el rey debía gobernarlos por separado.',
+  nota:'Juana I siguió siendo reina titular hasta su muerte, en 1555.',
+  src:'RAH, Historia Hispánica, «Carlos I de España y V de Alemania» [8].'},
+ {year:1580, type:'ter', sec:'también dinástico', place:'up',
+  axis:'Unión dinástica con Portugal',
+  title:'Crisis sucesoria y unión dinástica con Portugal',
+  short:'1580: Felipe II gana la sucesión portuguesa. 1581: las Cortes de Tomar lo juran rey.',
+  exp:'Muerto en 1580 sin heredero el cardenal-rey Enrique, Felipe II reclamó el trono portugués, y el ejército del duque de Alba venció al prior de Crato en Alcántara en agosto. En abril de 1581, las Cortes de Tomar juraron a Felipe como rey de Portugal.',
+  rel:'Portugal se incorporó como un reino más, con instituciones propias: Felipe II juró respetar sus leyes y fueros y reservar los cargos a los portugueses.',
+  cam:'La monarquía sumó Portugal y su imperio ultramarino, que conservaron sus leyes, su moneda y sus cargos para naturales. Fue una agregación, no una anexión.',
+  nota:'Dos momentos distintos: 1580, crisis sucesoria y unión dinástica; 1581, reconocimiento en las Cortes de Tomar.',
+  src:'RAH, Historia Hispánica, «Felipe II» [9]; Bouza, <em>Felipe II y el Portugal «dos povos»</em> (2010) [5].'},
+ {year:1621, type:'dyn', place:'down',
+  axis:'Reinado de Felipe IV',
+  title:'Inicio del reinado de Felipe IV',
+  short:'Felipe IV sube al trono; el conde de Olivares se convierte en su valido.',
+  exp:'En 1621, a la muerte de Felipe III, comenzó a reinar su hijo Felipe IV. Gaspar de Guzmán, conde de Olivares, se convirtió en su valido y principal ministro.',
+  rel:'El nuevo gobierno heredaba una monarquía compuesta muy extensa, cuyo coste recaía sobre todo en Castilla.',
+  cam:'Ese mismo año terminó la Tregua de los Doce Años y volvió la guerra en los Países Bajos: creció la presión fiscal sobre Castilla.',
+  nota:'',
+  src:'RAH, Historia Hispánica, «Felipe IV» [10] y «Gaspar de Guzmán y Pimentel» [11].'},
+ {year:1624, type:'pol', place:'up',
+  axis:'Gran Memorial de Olivares',
+  title:'Gran Memorial de Olivares',
+  short:'Escrito reservado al rey que aconsejaba acercar sus reinos al estilo y leyes de Castilla. Era un programa de gobierno, no una ley.',
+  exp:'El 25 de diciembre de 1624 Olivares presentó a Felipe IV una instrucción reservada sobre el gobierno de la monarquía, conocida como Gran Memorial. En ella aconsejaba al rey trabajar para reducir sus reinos al estilo y leyes de Castilla.',
+  rel:'Es la formulación más clara de un programa de integración política: pasar de reinos unidos por un rey a reinos con leyes comunes.',
+  cam:'No cambió el derecho de ningún reino: era un diagnóstico y un programa de gobierno, no una ley publicada.',
+  nota:'No debe confundirse con la Unión de Armas, un proyecto militar posterior (1625–1626).',
+  src:'Elliott, De la Peña y Negredo (eds.), <em>Memoriales y cartas</em> (2013) [2]; RAH, «Gaspar de Guzmán y Pimentel» [11].'},
+ {year:1626, type:'pol', place:'down',
+  axis:'Unión de Armas',
+  title:'Propuesta de la Unión de Armas',
+  short:'Olivares propone una reserva militar común sostenida por todos los reinos. Fue una propuesta, no una política implantada.',
+  exp:'Olivares propuso que todos los reinos y territorios de la Monarquía sostuvieran una reserva militar común, en proporción a sus recursos. El proyecto fijaba como objetivo 140.000 hombres: una cifra prevista sobre el papel, no un ejército reunido. En 1626 Felipe IV lo presentó a las Cortes de Aragón, Valencia y Cataluña.',
+  rel:'Buscaba repartir el esfuerzo militar, hasta entonces sostenido sobre todo por Castilla, sin abolir los fueros: cooperación obligatoria entre reinos que seguían siendo jurídicamente distintos.',
+  cam:'Aragón y Valencia concedieron servicios en dinero, no las tropas pedidas; las Cortes catalanas se cerraron sin acuerdo. El proyecto no funcionó como estaba concebido y aumentó la desconfianza entre la Corte y las instituciones catalanas.',
+  nota:'Fue una <em>propuesta</em> de Olivares, planteada en 1625 y distinta del Gran Memorial de 1624. No llegó a ser una política plenamente implantada.',
+  src:'Elliott, <em>El conde-duque de Olivares</em> (1990) [3]; RAH, «Gaspar de Guzmán y Pimentel» [11].'},
+ {year:1640, type:'ter', sec:'también político', place:'up',
+  axis:'Cataluña y Portugal',
+  title:'Rebelión de Cataluña y Restauración portuguesa',
+  short:'Junio: Corpus de Sang en Barcelona. Diciembre: Portugal proclama rey al duque de Braganza.',
+  exp:'El 7 de junio de 1640, día del Corpus, los segadores y amotinados se alzaron en Barcelona y dieron muerte al virrey: es el Corpus de Sang. El 1 de diciembre, en Lisboa, un sector de la nobleza proclamó rey al duque de Braganza como Juan IV.',
+  rel:'Dos crisis distintas con un fondo común: la guerra con Francia y el alojamiento de tropas pesaban sobre reinos que defendían sus propias leyes.',
+  cam:'La monarquía compuesta se fracturó: Cataluña entró en guerra con Felipe IV y Portugal dejó de reconocerlo como su rey.',
+  nota:'',
+  src:'Cataluña: Elliott, <em>La rebelión de los catalanes</em> [4]; GEC, «el Corpus de Sang» [14]. Portugal: RAH, «Juan IV» [12]; Valladares (1998) [6].'},
+ {year:1641, type:'pol', place:'down', align:'right',
+  axis:'Luis XIII, conde de Barcelona',
+  title:'Luis XIII, reconocido como conde de Barcelona',
+  short:'Las instituciones catalanas sitúan el Principado bajo la soberanía de Luis XIII de Francia.',
+  exp:'El 16 de enero de 1641 la Junta de Braços, a propuesta de Pau Claris, creó una república bajo protección francesa. El 23 de enero las instituciones catalanas situaron el Principado bajo la soberanía de Luis XIII, reconocido como conde de Barcelona.',
+  rel:'Una parte de la monarquía compuesta cambiaba de soberano apoyándose en sus propias constituciones: la fidelidad al rey dependía del respeto a las leyes del reino.',
+  cam:'Felipe IV dejó de ser reconocido como conde de Barcelona por las instituciones catalanas. Cataluña volvió a su obediencia en 1652.',
+  nota:'',
+  src:'GEC, «República Catalana» [15]; RAH, «Pau Claris i Casademunt» [13].'}
+];
+
+/* ================= ESCALA QUEBRADA =================
+   Tramo A: 1469–1580 (111 años) en x 20–640  → 620/111 ≈ 5,59 px por año.
+   Tramo B: 1621–1641 (20 años)  en x 760–1700 → 940/20 = 47 px por año.
+   Ampliación del tramo B: 47 / 5,59 ≈ 8,4 (de ahí «unas 8 veces»).
+   Corte: 1580–1621 = 41 años sin hitos, x 640–760.                        */
+var SEG = [
+  {y0:1469, y1:1580, x0:20,  x1:640},
+  {y0:1621, y1:1641, x0:760, x1:1700}
+];
+var AXIS_W = 1776;
+function xOf(year){
+  for (var i=0;i<SEG.length;i++){var s=SEG[i];
+    if (year>=s.y0 && year<=s.y1) return s.x0 + (year-s.y0)*(s.x1-s.x0)/(s.y1-s.y0);}
+  return null;
+}
+var PXA = (SEG[0].x1-SEG[0].x0)/(SEG[0].y1-SEG[0].y0), PXB = (SEG[1].x1-SEG[1].x0)/(SEG[1].y1-SEG[1].y0);
+window.__scale = {pxPerYearA:PXA, pxPerYearB:PXB, ratio:PXB/PXA, gapYears:SEG[1].y0-SEG[0].y1,
+  yearsA:SEG[0].y1-SEG[0].y0, yearsB:SEG[1].y1-SEG[1].y0, positions:EVENTS.map(function(e){return [e.year,xOf(e.year)];})};
+
+/* ================= UTILIDADES ================= */
+function $(s,r){return (r||document).querySelector(s);}
+function el(tag,cls,html){var n=document.createElement(tag); if(cls) n.className=cls; if(html!=null) n.innerHTML=html; return n;}
+var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ================= ESCALADO 16:9 ================= */
+var stage = $('#stage');
+function fit(){
+  var s = Math.min(window.innerWidth/1920, window.innerHeight/1080);
+  stage.style.transform = 'translate(' + (-960*s) + 'px,' + (-540*s) + 'px) scale(' + s + ')';
+}
+window.addEventListener('resize', fit); fit();
+
+/* ================= PANTALLAS ================= */
+var SCREENS = [
+  {id:'s-inicio', num:'I', name:'Inicio'},
+  {id:'s-clave', num:'II', name:'Clave de lectura'},
+  {id:'s-crono', num:'III', name:'Cronología'},
+  {id:'s-pregunta', num:'IV', name:'Pregunta final'},
+  {id:'s-fuentes', num:'V', name:'Fuentes'}
+];
+var cur = -1, busy = false;
+var prog = $('#progress');
+SCREENS.forEach(function(s,i){ prog.appendChild(el('span','',s.num+' · '+s.name)); });
+
+function setScreen(i){
+  SCREENS.forEach(function(s,j){
+    var n = document.getElementById(s.id), on = j===i;
+    n.classList.toggle('active', on);
+    if (on){ n.removeAttribute('inert'); n.removeAttribute('aria-hidden'); }
+    else { n.setAttribute('inert',''); n.setAttribute('aria-hidden','true'); }
+    prog.children[j].classList.toggle('on', on);
+  });
+  cur = i;
+  if (i===2) renderFicha(false);
+  if (i===0 && typeof resetQuiz==='function') resetQuiz(true);
+  hideTip();
+  var first = document.getElementById(SCREENS[i].id).querySelector(i===2 ? '.mk.on' : (i===3 ? '.opt' : '.btn.primary'));
+  if (first) setTimeout(function(){ try{ first.focus({preventScroll:true}); }catch(e){} }, reduce?0:520);
+  $('#live').textContent = SCREENS[i].name + (i===2 ? '. ' + liveText() : '');
+}
+function go(i){
+  if (i<0 || i>=SCREENS.length || i===cur || busy) return;
+  // Cortinilla de capítulo al pasar entre introducción, cronología y pregunta
+  var chapter = $('#chapter');
+  if (reduce || cur===-1){ setScreen(i); return; }
+  busy = true;
+  chapter.querySelector('.num').textContent = 'Capítulo ' + SCREENS[i].num;
+  chapter.querySelector('.name').textContent = SCREENS[i].name;
+  chapter.classList.add('show');
+  setTimeout(function(){ setScreen(i); }, 420);
+  setTimeout(function(){ chapter.classList.remove('show'); }, 1050);
+  setTimeout(function(){ busy = false; }, 1320);
+}
+window.__go = go;
+document.addEventListener('click', function(e){
+  var b = e.target.closest('[data-go]'); if (b) go(+b.getAttribute('data-go'));
+});
+
+/* ================= CRONOLOGÍA ================= */
+var axis = $('#axis'), sel = 0, peekId = -1, lastPointer = 'mouse';
+function buildAxis(){
+  var A = SEG[0], B = SEG[1];
+  axis.appendChild(Object.assign(el('div','ax-line'),{style:'left:0;width:'+(A.x1+12)+'px'}));
+  axis.appendChild(Object.assign(el('div','ax-line b'),{style:'left:'+(B.x0-12)+'px;right:0'}));
+  var inkA = el('div','ink'); inkA.id='inkA'; inkA.style.left='0'; axis.appendChild(inkA);
+  var inkB = el('div','ink b'); inkB.id='inkB'; inkB.style.left=(B.x0-12)+'px'; axis.appendChild(inkB);
+  for (var y=1470;y<=1580;y+=10){ var t=el('div','tick'); t.style.left=xOf(y)+'px'; axis.appendChild(t); }
+  for (var y2=B.y0;y2<=B.y1;y2++){ var t2=el('div','tick b'); t2.style.left=xOf(y2)+'px'; axis.appendChild(t2); }
+  var br = el('div','break'); br.style.left=((A.x1+B.x0)/2-50)+'px';
+  br.innerHTML='<svg width="100" height="38" viewBox="0 0 100 38" fill="none" stroke="#e2c483" stroke-width="1.6" aria-hidden="true"><path d="M0 19h30M70 19h30M34 32l8-26M46 32l8-26M58 32l8-26"/></svg>';
+  axis.appendChild(br);
+  function bracket(x0,x1,txt,cls){
+    var b=el('div','bracket'); b.style.left=x0+'px'; b.style.width=(x1-x0)+'px'; axis.appendChild(b);
+    var l=el('div','blabel'+(cls?' '+cls:''),txt); l.style.left=x0+'px'; l.style.width=(x1-x0)+'px'; axis.appendChild(l);
+  }
+  bracket(A.x0, A.x1, A.y0+'–'+A.y1+' · '+(A.y1-A.y0)+' años · escala comprimida');
+  var gl = el('div','blabel gap', (B.y0-A.y1)+' años sin hitos'); gl.style.left=(A.x1)+'px'; gl.style.width=(B.x0-A.x1)+'px'; axis.appendChild(gl);
+  bracket(B.x0, B.x1, B.y0+'–'+B.y1+' · '+(B.y1-B.y0)+' años · escala ampliada');
+
+  var ring = el('div',''); ring.id='ring'; axis.appendChild(ring);
+
+  EVENTS.forEach(function(ev,i){
+    var x = xOf(ev.year), T = TYPES[ev.type];
+    var mk = el('button','mk '+ev.type);
+    mk.type='button'; mk.dataset.i=i; mk.style.left=x+'px';
+    mk.setAttribute('aria-label', ev.year+', '+ev.title+'. '+T.label+'.');
+    mk.setAttribute('aria-describedby','tip');
+    mk.innerHTML='<i class="sh '+ev.type+'"></i>';
+    axis.appendChild(mk);
+    var yl = el('div','yl '+ev.place+(ev.align?' '+ev.align:''));
+    yl.dataset.i=i; yl.style.left=x+'px'; yl.setAttribute('aria-hidden','true');
+    yl.innerHTML='<span class="y">'+ev.year+'</span><span class="t">'+ev.axis+'</span>';
+    axis.appendChild(yl);
+  });
+
+  var tip = el('div',''); tip.id='tip'; tip.setAttribute('role','tooltip');
+  tip.innerHTML='<div class="arrow"></div><div class="hd"><span class="yr"></span><i class="sh"></i><span class="cat"></span></div>'+
+    '<div class="ti"></div><p></p><div class="ft"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M9 11V5a2 2 0 0 1 4 0v6M13 10a2 2 0 0 1 4 0v3M9 11a2 2 0 0 0-4 0v3a7 7 0 0 0 14 0v-1"/></svg>'+
+    '<span class="hint">Clic para abrir la ficha completa</span><button type="button" class="open">Abrir ficha</button></div>';
+  axis.appendChild(tip);
+  tip.querySelector('.open').addEventListener('click', function(e){ e.stopPropagation(); if (peekId>=0) select(peekId); });
+
+  var dots = $('#dots');
+  EVENTS.forEach(function(){ dots.appendChild(el('span','dot')); });
+  dots.appendChild(el('span','count'));
+}
+
+function showTip(i, touch){
+  var ev = EVENTS[i], T = TYPES[ev.type], tip = $('#tip'), x = xOf(ev.year);
+  peekId = i;
+  tip.querySelector('.yr').textContent = ev.year;
+  var sh = tip.querySelector('.hd .sh'); sh.className = 'sh '+ev.type; sh.style.width = sh.style.height = '11px';
+  var cat = tip.querySelector('.cat'); cat.textContent = T.label + (ev.sec ? ' · ' + ev.sec : ''); cat.style.color = T.light;
+  tip.querySelector('.ti').textContent = ev.title;
+  tip.querySelector('p').textContent = ev.short;
+  var w = 380, left = Math.max(0, Math.min(AXIS_W - w, x - w/2));
+  tip.style.left = left + 'px';
+  tip.querySelector('.arrow').style.left = (x - left) + 'px';
+  tip.classList.toggle('touch', !!touch);
+  tip.classList.add('show');
+  $('#ficha').classList.toggle('dim', i !== sel);
+  axis.querySelectorAll('.mk,.yl').forEach(function(n){ n.classList.toggle('peek', +n.dataset.i===i); });
+}
+function hideTip(){
+  var tip = $('#tip'); if (!tip) return;
+  tip.classList.remove('show'); peekId = -1;
+  $('#ficha').classList.remove('dim');
+  axis.querySelectorAll('.peek').forEach(function(n){ n.classList.remove('peek'); });
+}
+
+function liveText(){ var e=EVENTS[sel]; return e.year+'. '+e.title+'. '+(sel+1)+' de '+EVENTS.length+'.'; }
+
+function renderFicha(animate){
+  var ev = EVENTS[sel], T = TYPES[ev.type], f = $('#ficha');
+  function fill(){
+    $('#f-wax').textContent = ev.year;
+    $('#f-type').innerHTML = '<i class="sh '+ev.type+'" style="background:'+T.ink+'"></i><span style="color:'+T.ink+'">'+T.long+'</span>'+(ev.sec?'<span class="sec">('+ev.sec+')</span>':'');
+    $('#f-title').textContent = ev.title;
+    $('#f-exp').textContent = ev.exp;
+    var n = $('#f-nota'); n.hidden = !ev.nota; n.querySelector('span').innerHTML = ev.nota || '';
+    $('#f-rel').textContent = ev.rel;
+    $('#f-cam').textContent = ev.cam;
+    $('#f-src').innerHTML = ev.src;
+  }
+  if (animate && !reduce){ f.classList.add('swap'); setTimeout(function(){ fill(); f.classList.remove('swap'); }, 220); }
+  else fill();
+
+  // eje
+  var x = xOf(ev.year), ring = $('#ring');
+  ring.style.left = x + 'px'; ring.className = ev.type;
+  var A = SEG[0], B = SEG[1];
+  $('#inkA').style.width = Math.min(x, A.x1+12) + 'px';
+  $('#inkB').style.width = Math.max(0, x - (B.x0-12)) + 'px';
+  axis.querySelectorAll('.mk').forEach(function(m){ var on=+m.dataset.i===sel; m.classList.toggle('on',on); m.setAttribute('aria-current', on?'true':'false'); });
+  axis.querySelectorAll('.yl').forEach(function(m){ m.classList.toggle('on', +m.dataset.i===sel); });
+
+  // controles
+  var prev = $('#prev'), next = $('#next');
+  var L='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>';
+  var R='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>';
+  prev.innerHTML = L + (sel>0 ? EVENTS[sel-1].year : 'Clave de lectura');
+  prev.setAttribute('aria-label', sel>0 ? 'Anterior: '+EVENTS[sel-1].year : 'Volver a la clave de lectura');
+  next.innerHTML = (sel<EVENTS.length-1 ? EVENTS[sel+1].year : 'Pregunta final') + R;
+  next.setAttribute('aria-label', sel<EVENTS.length-1 ? 'Siguiente: '+EVENTS[sel+1].year : 'Ir a la pregunta final');
+  var ds = $('#dots').children;
+  for (var i=0;i<EVENTS.length;i++){ ds[i].className = 'dot' + (i===sel?' on':(i>sel?' after':'')); }
+  ds[EVENTS.length].textContent = (sel+1)+' de '+EVENTS.length;
+}
+
+function select(i){
+  if (i<0 || i>=EVENTS.length) return;
+  hideTip();
+  var changed = i!==sel; sel = i;
+  renderFicha(changed);
+  if (changed) $('#live').textContent = liveText();
+}
+function step(d){
+  if (sel+d < 0) return go(1);
+  if (sel+d >= EVENTS.length) return go(3);
+  select(sel+d);
+  var m = axis.querySelector('.mk[data-i="'+sel+'"]');
+  if (m && document.activeElement && document.activeElement.classList.contains('mk')) m.focus({preventScroll:true});
+}
+window.__select = select; window.__step = step;
+
+buildAxis();
+$('#prev').addEventListener('click', function(){ step(-1); });
+$('#next').addEventListener('click', function(){ step(1); });
+
+// Puntero: ratón = vista previa al pasar; táctil = primer toque vista previa, segundo toque ficha.
+document.addEventListener('pointerdown', function(e){
+  lastPointer = e.pointerType || 'mouse';
+  if (cur===2 && peekId>=0 && !e.target.closest('.mk,.yl,#tip')) hideTip();
+}, true);
+axis.addEventListener('pointerover', function(e){
+  if (e.pointerType !== 'mouse') return;
+  var t = e.target.closest('.mk,.yl'); if (t) showTip(+t.dataset.i, false);
+});
+axis.addEventListener('pointerout', function(e){
+  if (e.pointerType !== 'mouse') return;
+  var t = e.target.closest('.mk,.yl'); if (!t) return;
+  var to = e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest('.mk,.yl');
+  if (to && to.dataset.i === t.dataset.i) return;
+  if (document.activeElement === axis.querySelector('.mk[data-i="'+t.dataset.i+'"]') && lastPointer!=='mouse') return;
+  hideTip();
+});
+axis.addEventListener('click', function(e){
+  var t = e.target.closest('.mk,.yl'); if (!t) return;
+  var i = +t.dataset.i;
+  if ((lastPointer === 'touch' || lastPointer === 'pen') && peekId !== i){ showTip(i, true); return; }
+  select(i);
+});
+// Teclado: el foco muestra la vista previa; Intro abre (clic nativo del botón).
+axis.addEventListener('focusin', function(e){
+  var t = e.target.closest('.mk'); if (t && lastPointer==='key') showTip(+t.dataset.i, false);
+});
+axis.addEventListener('focusout', function(e){
+  if (lastPointer==='key' && !(e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest('#axis'))) hideTip();
+});
+
+/* ================= PREGUNTA ================= */
+var OPTS = [
+ {k:'A', ok:true, txt:'Un mismo rey gobierna varios reinos que conservan sus propias leyes, Cortes e instituciones.',
+  fb:'Compartir rey no era compartir Estado: Castilla, Aragón y, desde 1580–1581, Portugal conservaron sus leyes, Cortes e instituciones. Por eso aquellas uniones fueron dinásticas, y la uniformidad que proponía el Gran Memorial de 1624 no se aplicó en este periodo.'},
+ {k:'B', ok:false, txt:'Tras un matrimonio real, los reinos se funden en un único Estado con las mismas leyes.',
+  fb:'El matrimonio de 1469 unió a dos herederos, no a dos Estados: cada corona mantuvo sus leyes y sus Cortes. Reducir los reinos a las leyes de Castilla era lo que aconsejaba el Gran Memorial de 1624, y no llegó a aplicarse. La respuesta correcta es la A. Conviene revisar 1469 y 1624.'},
+ {k:'C', ok:false, txt:'Cada reino tiene su propio rey, aunque todos pertenezcan a la misma dinastía.',
+  fb:'Los reinos compartían un mismo soberano: Carlos I, Felipe II o Felipe IV reinaron a la vez en todos ellos. Lo que cada reino conservaba eran sus leyes e instituciones, no un rey propio. La respuesta correcta es la A. Conviene revisar 1516 y 1580.'}
+];
+var optsBox = $('#opts');
+OPTS.forEach(function(o,i){
+  var b = el('button','opt'); b.type='button'; b.dataset.i=i;
+  b.innerHTML = '<span class="mark" aria-hidden="true"></span><span><strong>'+o.k+'.</strong>'+o.txt+'</span>';
+  b.addEventListener('click', function(){ answer(i); });
+  optsBox.appendChild(b);
+});
+var CHECK='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>';
+var CROSS='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+function answer(i){
+  var o = OPTS[i];
+  optsBox.querySelectorAll('.opt').forEach(function(b,j){
+    b.disabled = true;
+    b.classList.toggle('right', OPTS[j].ok && (j===i || !o.ok));
+    b.classList.toggle('wrong', j===i && !o.ok);
+    b.classList.toggle('faded', j!==i && !OPTS[j].ok);
+    b.querySelector('.mark').innerHTML = (OPTS[j].ok && (j===i || !o.ok)) ? CHECK : (j===i ? CROSS : '');
+    b.setAttribute('aria-pressed', j===i ? 'true':'false');
+  });
+  var fb = $('#fb');
+  fb.classList.toggle('no', !o.ok);
+  fb.querySelector('b').textContent = o.ok ? 'Correcto' : 'No es correcto';
+  fb.querySelector('p').textContent = o.fb;
+  fb.classList.add('show');
+  $('#q-sub').textContent = o.ok ? 'Has acertado.' : 'Has elegido la opción ' + o.k + '.';
+  var r = $('#retry'); r.hidden = o.ok;
+  if (!o.ok) r.focus({preventScroll:true});
+}
+function resetQuiz(silent){
+  optsBox.querySelectorAll('.opt').forEach(function(b){ b.disabled=false; b.className='opt'; b.querySelector('.mark').innerHTML=''; b.removeAttribute('aria-pressed'); });
+  var fb=$('#fb'); fb.classList.remove('show','no'); fb.querySelector('b').textContent=''; fb.querySelector('p').textContent='';
+  $('#q-sub').textContent='Elige una respuesta.'; $('#retry').hidden=true;
+  if (!silent) optsBox.querySelector('.opt').focus({preventScroll:true});
+}
+$('#retry').addEventListener('click', function(){ resetQuiz(false); });
+window.__answer = answer; window.__resetQuiz = resetQuiz;
+
+/* ================= TECLADO Y PANTALLA COMPLETA ================= */
+function toggleFS(){
+  var d = document;
+  if (!d.fullscreenElement){ (d.documentElement.requestFullscreen||function(){}).call(d.documentElement); }
+  else { (d.exitFullscreen||function(){}).call(d); }
+}
+$('#fsbtn').addEventListener('click', toggleFS);
+document.addEventListener('keydown', function(e){
+  if (e.altKey || e.ctrlKey || e.metaKey) return;
+  var k = e.key;
+  // La vista previa por foco solo aparece al recorrer las fechas con Tab, no al avanzar con flechas o mando.
+  lastPointer = (k === 'Tab') ? 'key' : 'nav';
+  if (k==='f' || k==='F'){ toggleFS(); return; }
+  if (k==='Escape'){ hideTip(); return; }
+  if (busy) return;
+  var right = (k==='ArrowRight' || k==='PageDown'), left = (k==='ArrowLeft' || k==='PageUp');
+  if (!right && !left) return;
+  e.preventDefault();
+  if (cur===2) step(right?1:-1);
+  else go(cur + (right?1:-1));
+});
+
+/* ================= INICIO ================= */
+setScreen(0);
+renderFicha(false);
+})();
+</script>
+</body>
+</html>
